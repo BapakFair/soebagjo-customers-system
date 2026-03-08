@@ -1,29 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { formatCurrency, formatDateTime, formatLensValue } from "@/lib/formatters";
+import { getTransactionTotal } from "@/lib/transaction-utils";
 import type { ITransactionListItem } from "@/types/transactions";
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatLensValue(value: number) {
-  return value.toFixed(2);
-}
-
-function getTransactionTotal(row: ITransactionListItem) {
-  return row.lens_price + row.frame_price;
-}
 
 export const columns: ColumnDef<ITransactionListItem>[] = [
   {
@@ -100,7 +79,7 @@ export const columns: ColumnDef<ITransactionListItem>[] = [
     accessorKey: "created_at",
     header: "Dibuat",
     cell: ({ row }) => (
-      <span className="text-sm text-slate-500">{formatDate(row.original.created_at)}</span>
+      <span className="text-sm text-slate-500">{formatDateTime(row.original.created_at)}</span>
     ),
   },
 ];

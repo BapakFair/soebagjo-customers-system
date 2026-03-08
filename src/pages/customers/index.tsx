@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import supabase from "@/lib/db";
+import { formatDateTime } from "@/lib/formatters";
 import { columns } from "@/pages/customers/columns";
 import type { ICustomer } from "@/types/customers";
 
@@ -57,17 +58,6 @@ const setupChecklist = [
   "Jalankan SQL schema di file supabase/setup.sql pada SQL Editor Supabase.",
   "Jika hanya admin internal yang boleh masuk, nonaktifkan public sign-up di Auth > Providers > Email.",
 ];
-
-function formatTime(timestamp: string | null | undefined) {
-  if (!timestamp) {
-    return "-";
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(timestamp));
-}
 
 export default function CustomersPage() {
   const [session, setSession] = React.useState<Session | null>(null);
@@ -363,7 +353,7 @@ export default function CustomersPage() {
                           Sync
                         </p>
                         <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                          {latestCustomer ? formatTime(latestCustomer.created_at) : "-"}
+                          {latestCustomer ? formatDateTime(latestCustomer.created_at) : "-"}
                         </p>
                         <p className="mt-2 text-sm text-slate-600">data terbaru dari Supabase</p>
                       </div>

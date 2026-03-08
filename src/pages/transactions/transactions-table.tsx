@@ -4,19 +4,13 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  filterTransactions,
+  paginateItems,
+  TRANSACTION_PAGE_SIZE,
+} from "@/lib/transaction-utils";
 import { columns } from "@/pages/transactions/columns";
 import type { ITransactionListItem } from "@/types/transactions";
-
-const PAGE_SIZE = 25;
-
-function toDateFilterValue(timestamp: string) {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
 
 interface TransactionsTableProps {
   data: ITransactionListItem[];
@@ -28,22 +22,12 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
   const [transactionDateFilter, setTransactionDateFilter] = React.useState("");
   const [pageIndex, setPageIndex] = React.useState(0);
 
-  const normalizedCustomerFilter = customerFilter.trim().toLowerCase();
-  const filteredData = data.filter((item) => {
-    const matchesCustomer =
-      normalizedCustomerFilter.length === 0 ||
-      item.customer_name.toLowerCase().includes(normalizedCustomerFilter);
-    const matchesDate =
-      transactionDateFilter.length === 0 ||
-      toDateFilterValue(item.created_at) === transactionDateFilter;
-
-    return matchesCustomer && matchesDate;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
-  const safePageIndex = Math.min(pageIndex, totalPages - 1);
-  const pageStart = safePageIndex * PAGE_SIZE;
-  const currentPageRows = filteredData.slice(pageStart, pageStart + PAGE_SIZE);
+  const filteredData = filterTransactions(data, customerFilter, transactionDateFilter);
+  const { pageRows: currentPageRows, safePageIndex, totalPages } = paginateItems(
+    filteredData,
+    pageIndex,
+    TRANSACTION_PAGE_SIZE
+  );
 
   return (
     <div className="space-y-4">

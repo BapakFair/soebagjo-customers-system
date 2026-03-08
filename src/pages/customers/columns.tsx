@@ -1,13 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
+import { formatDateTime } from "@/lib/formatters";
 import type { ICustomer } from "@/types/customers";
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 export const columns: ColumnDef<ICustomer>[] = [
   {
@@ -39,7 +33,7 @@ export const columns: ColumnDef<ICustomer>[] = [
     accessorKey: "created_at",
     header: "Dibuat",
     cell: ({ row }) => (
-      <span className="text-sm text-slate-500">{formatDate(row.original.created_at)}</span>
+      <span className="text-sm text-slate-500">{formatDateTime(row.original.created_at)}</span>
     ),
   },
 ];

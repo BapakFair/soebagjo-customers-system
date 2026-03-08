@@ -60,3 +60,5 @@ Creating turbopack project {
  ✓ Compiled in 981ms
  GET /transactions 200 in 242ms
  GET /transactions 200 in 129ms
+ ✓ Compiled in 1405ms
+ ✓ Compiled in 573ms

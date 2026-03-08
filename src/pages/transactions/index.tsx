@@ -18,6 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import supabase from "@/lib/db";
+import { formatCurrency } from "@/lib/formatters";
+import {
+  getTransactionTotal,
+  normalizePriceInput,
+  parseNumericInput,
+} from "@/lib/transaction-utils";
 import { TransactionsTable } from "@/pages/transactions/transactions-table";
 import type { ICustomer } from "@/types/customers";
 import type { ITransaction, ITransactionListItem } from "@/types/transactions";
@@ -63,27 +69,6 @@ const initialTransactionForm: TransactionFormState = {
   notes_transaction: "",
   frame: "",
 };
-
-function parseNumericInput(value: string) {
-  const parsed = Number.parseFloat(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
-
-function normalizePriceInput(value: string) {
-  return value.replace(/[^\d]/g, "");
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function getTransactionTotal(transaction: Pick<ITransaction, "lens_price" | "frame_price">) {
-  return transaction.lens_price + transaction.frame_price;
-}
 
 export default function TransactionsPage() {
   const [session, setSession] = React.useState<Session | null>(null);
