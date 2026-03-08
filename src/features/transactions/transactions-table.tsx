@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { columns } from "@/features/transactions/columns";
+import { TransactionMobileList } from "@/features/transactions/transaction-mobile-list";
 import {
   filterTransactions,
   paginateItems,
@@ -28,6 +29,7 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
     pageIndex,
     TRANSACTION_PAGE_SIZE
   );
+  const emptyMessage = isLoading ? "Memuat transaksi..." : "Belum ada transaksi yang cocok.";
 
   return (
     <div className="space-y-4">
@@ -64,18 +66,21 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
         </p>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={currentPageRows}
-        emptyMessage={isLoading ? "Memuat transaksi..." : "Belum ada transaksi yang cocok."}
-      />
+      <div className="md:hidden">
+        <TransactionMobileList transactions={currentPageRows} emptyMessage={emptyMessage} />
+      </div>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="hidden md:block">
+        <DataTable columns={columns} data={currentPageRows} emptyMessage={emptyMessage} />
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
         <Button
           type="button"
           variant="outline"
           onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
           disabled={safePageIndex === 0}
+          className="w-full sm:w-auto"
         >
           <ChevronLeft className="size-4" />
           Sebelumnya
@@ -86,6 +91,7 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
           variant="outline"
           onClick={() => setPageIndex((current) => Math.min(totalPages - 1, current + 1))}
           disabled={safePageIndex >= totalPages - 1}
+          className="w-full sm:w-auto"
         >
           Berikutnya
           <ChevronRight className="size-4" />

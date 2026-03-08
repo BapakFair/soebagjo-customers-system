@@ -296,24 +296,24 @@ export default function TransactionsPage() {
         <title>SOEBAGJO Transactions</title>
       </Head>
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(217,119,6,0.18),_transparent_28%),linear-gradient(180deg,#f8faf7_0%,#fffdf8_44%,#eef5f1_100%)] text-slate-950">
-        <div className="mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-10">
-          <div className="flex flex-col gap-4 rounded-[28px] border border-white/60 bg-white/72 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8 lg:px-10">
+          <div className="flex flex-col gap-4 rounded-[28px] border border-white/60 bg-white/72 p-4 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-semibold tracking-[0.3em] text-teal-900/70 uppercase">
                 SOEBAGJO Transactions
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
                 Input transaksi lensa dan histori customer.
               </h1>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild variant="outline" className="rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white">
+            <div className="grid gap-3 sm:flex sm:flex-wrap">
+              <Button asChild variant="outline" className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto">
                 <Link href="/customers">
                   Halaman Customer
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white">
+              <Button asChild variant="outline" className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto">
                 <Link href="/">
                   Homepage
                   <ArrowRight className="size-4" />
@@ -367,7 +367,7 @@ export default function TransactionsPage() {
                   <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-200 uppercase">
                     Protected route
                   </CardDescription>
-                  <CardTitle className="text-4xl leading-tight tracking-[-0.05em] text-white">
+                  <CardTitle className="text-3xl leading-tight tracking-[-0.05em] text-white sm:text-4xl">
                     Login di halaman customer dulu sebelum input transaksi.
                   </CardTitle>
                 </CardHeader>
@@ -406,7 +406,7 @@ export default function TransactionsPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Sesi aktif
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Dashboard transaksi customer
                     </CardTitle>
                   </CardHeader>
@@ -416,7 +416,7 @@ export default function TransactionsPage() {
                       <p className="mt-2 text-lg font-semibold">{session.user.email}</p>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                         <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">Total</p>
                         <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">
@@ -455,7 +455,7 @@ export default function TransactionsPage() {
                         type="button"
                         onClick={() => void Promise.all([loadCustomerOptions(), loadTransactions()])}
                         variant="outline"
-                        className="rounded-full border-slate-300 bg-white hover:bg-slate-50"
+                        className="w-full rounded-full border-slate-300 bg-white hover:bg-slate-50 sm:w-auto"
                         disabled={isLoadingCustomers || isLoadingTransactions}
                       >
                         {isLoadingCustomers || isLoadingTransactions ? (
@@ -470,7 +470,7 @@ export default function TransactionsPage() {
                         type="button"
                         onClick={() => void handleLogout()}
                         variant="outline"
-                        className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                        className="w-full rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100 sm:w-auto"
                         disabled={isSigningOut}
                       >
                         {isSigningOut ? (
@@ -484,7 +484,7 @@ export default function TransactionsPage() {
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-5 md:grid-cols-2">
+                <div className="grid gap-5 sm:grid-cols-2">
                   <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
                     <CardHeader>
                       <Eye className="size-5 text-amber-700" />
@@ -531,7 +531,7 @@ export default function TransactionsPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Form transaksi
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Tambah transaksi baru
                     </CardTitle>
                   </CardHeader>
@@ -590,7 +590,7 @@ export default function TransactionsPage() {
                       <div className="grid gap-4 xl:grid-cols-2">
                         <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                           <p className="text-sm font-semibold text-slate-950">Lensa Kiri</p>
-                          <div className="mt-4 grid gap-4 sm:grid-cols-4">
+                          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                             <div className="space-y-2">
                               <label className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
                                 Speris
@@ -664,7 +664,7 @@ export default function TransactionsPage() {
 
                         <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                           <p className="text-sm font-semibold text-slate-950">Lensa Kanan</p>
-                          <div className="mt-4 grid gap-4 sm:grid-cols-4">
+                          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                             <div className="space-y-2">
                               <label className="text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
                                 Speris
@@ -867,7 +867,7 @@ export default function TransactionsPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Histori transaksi
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Transaksi customer terbaru
                     </CardTitle>
                   </CardHeader>

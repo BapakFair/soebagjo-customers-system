@@ -9,18 +9,20 @@ Web app internal untuk toko optik SOEBAGJO. Aplikasi ini dipakai untuk mengganti
 - Halaman `/transactions` untuk input resep lensa, harga lensa, harga frame, dan histori transaksi.
 - Filter histori transaksi berdasarkan nama customer dan tanggal transaksi.
 - Pagination histori transaksi dengan ukuran awal 25 baris.
+- Tampilan mobile-friendly untuk homepage, customer list, dan histori transaksi.
+- Card list khusus mobile untuk customer dan transaksi agar tidak bergantung pada tabel lebar.
 - SQL schema dan migration untuk setup baru maupun perubahan schema yang sudah berjalan.
 
 ## Tech stack
 
-- Next.js 15 (Pages Router)
+- Next.js 15.3.8 (Pages Router)
 - React 19
 - TypeScript
 - Tailwind CSS 4
 - Supabase Auth + Database
 - TanStack React Table
 
-## Struktur route
+## Struktur project
 
 - `/`
   Homepage produk dan preview schema.
@@ -28,6 +30,24 @@ Web app internal untuk toko optik SOEBAGJO. Aplikasi ini dipakai untuk mengganti
   Login Supabase, daftar customer, dan form tambah customer.
 - `/transactions`
   Protected page untuk input transaksi customer dan melihat histori transaksi.
+- `src/features`
+  Komponen dan helper per fitur yang bukan route Next.js.
+- `src/lib`
+  Utility formatter, helper transaksi, dan konfigurasi Supabase client.
+- `src/components`
+  UI reusable seperti tabel, button, alert, card, dan input.
+
+## Catatan penting Pages Router
+
+Project ini memakai `src/pages`, jadi hanya file route yang boleh berada di dalam folder tersebut.
+
+Jangan taruh file seperti:
+
+- `columns.tsx`
+- `transactions-table.tsx`
+- helper/component lain tanpa default export page
+
+Simpan file non-route di `src/features`, `src/components`, atau `src/lib` agar build production Next.js dan deploy Vercel tidak gagal.
 
 ## Struktur data transaksi
 
@@ -80,6 +100,12 @@ cp .env.example .env.local
 npm run dev
 ```
 
+Jika PowerShell lokal menolak `npm.ps1`, gunakan:
+
+```bash
+npm.cmd run dev
+```
+
 8. Buka:
 
 - `http://127.0.0.1:3000/`
@@ -129,6 +155,7 @@ Unit test saat ini fokus ke logic yang paling penting dan mudah rusak:
 - filter histori transaksi
 - pagination histori transaksi
 - formatter dasar yang dipakai tabel
+- perilaku utility yang dipakai card list/table customer dan transaksi
 
 Jalankan:
 

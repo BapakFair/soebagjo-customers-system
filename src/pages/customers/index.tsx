@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { columns } from "@/features/customers/columns";
+import { CustomerMobileList } from "@/features/customers/customer-mobile-list";
 import supabase from "@/lib/db";
 import { formatDateTime } from "@/lib/formatters";
 import type { ICustomer } from "@/types/customers";
@@ -221,37 +222,39 @@ export default function CustomersPage() {
       </Head>
 
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(217,119,6,0.18),_transparent_28%),linear-gradient(180deg,#f8faf7_0%,#fffdf8_44%,#eef5f1_100%)] text-slate-950">
-        <div className="mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-10">
-          <div className="flex flex-col gap-4 rounded-[28px] border border-white/60 bg-white/72 p-5 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-8 lg:px-10">
+          <div className="flex flex-col gap-4 rounded-[28px] border border-white/60 bg-white/72 p-4 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-semibold tracking-[0.3em] text-teal-900/70 uppercase">
                 SOEBAGJO Customers
               </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
                 Login internal dan manajemen customer dalam satu halaman.
               </h1>
             </div>
 
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white"
-            >
-              <Link href="/">
-                Kembali ke Homepage
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <div className="grid gap-3 sm:flex sm:flex-wrap">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto"
+              >
+                <Link href="/">
+                  Kembali ke Homepage
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
 
-            <Button
-              asChild
-              className="rounded-full bg-teal-900 text-white hover:bg-teal-800"
-            >
-              <Link href="/transactions">
-                Input Transaksi
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+              <Button
+                asChild
+                className="w-full rounded-full bg-teal-900 text-white hover:bg-teal-800 sm:w-auto"
+              >
+                <Link href="/transactions">
+                  Input Transaksi
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {!isSupabaseConfigured ? (
@@ -312,7 +315,7 @@ export default function CustomersPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Sesi aktif
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Akses customer database SOEBAGJO
                     </CardTitle>
                   </CardHeader>
@@ -325,7 +328,7 @@ export default function CustomersPage() {
                       </p>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                         <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">
                           Total
@@ -364,7 +367,7 @@ export default function CustomersPage() {
                         type="button"
                         onClick={() => void loadCustomers()}
                         variant="outline"
-                        className="rounded-full border-slate-300 bg-white hover:bg-slate-50"
+                        className="w-full rounded-full border-slate-300 bg-white hover:bg-slate-50 sm:w-auto"
                         disabled={isCustomersLoading}
                       >
                         {isCustomersLoading ? (
@@ -379,7 +382,7 @@ export default function CustomersPage() {
                         type="button"
                         onClick={() => void handleLogout()}
                         variant="outline"
-                        className="rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                        className="w-full rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100 sm:w-auto"
                         disabled={isSigningOut}
                       >
                         {isSigningOut ? (
@@ -393,7 +396,7 @@ export default function CustomersPage() {
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-5 md:grid-cols-3">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
                     <CardHeader>
                       <div className="flex size-12 items-center justify-center rounded-2xl bg-teal-100 text-teal-800">
@@ -450,7 +453,7 @@ export default function CustomersPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Form customer
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Tambah customer baru
                     </CardTitle>
                   </CardHeader>
@@ -531,12 +534,17 @@ export default function CustomersPage() {
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
                       Customer table
                     </CardDescription>
-                    <CardTitle className="text-3xl tracking-[-0.05em] text-slate-950">
+                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
                       Data customer tersimpan
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <DataTable columns={columns} data={customers} />
+                    <div className="md:hidden">
+                      <CustomerMobileList customers={customers} />
+                    </div>
+                    <div className="hidden md:block">
+                      <DataTable columns={columns} data={customers} />
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -548,7 +556,7 @@ export default function CustomersPage() {
                   <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-200 uppercase">
                     Access gate
                   </CardDescription>
-                  <CardTitle className="text-4xl leading-tight tracking-[-0.05em] text-white">
+                  <CardTitle className="text-3xl leading-tight tracking-[-0.05em] text-white sm:text-4xl">
                     Halaman customer dikunci untuk user internal yang sudah terdaftar.
                   </CardTitle>
                 </CardHeader>
