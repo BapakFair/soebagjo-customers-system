@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { columns } from "@/features/transactions/columns";
 import {
   filterTransactions,
   paginateItems,
   TRANSACTION_PAGE_SIZE,
 } from "@/lib/transaction-utils";
-import { columns } from "@/pages/transactions/columns";
 import type { ITransactionListItem } from "@/types/transactions";
 
 interface TransactionsTableProps {

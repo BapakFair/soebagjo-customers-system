@@ -20,9 +20,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { columns } from "@/features/customers/columns";
 import supabase from "@/lib/db";
 import { formatDateTime } from "@/lib/formatters";
-import { columns } from "@/pages/customers/columns";
 import type { ICustomer } from "@/types/customers";
 
 type LoginFormState = {

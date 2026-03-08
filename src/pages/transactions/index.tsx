@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { TransactionsTable } from "@/features/transactions/transactions-table";
 import supabase from "@/lib/db";
 import { formatCurrency } from "@/lib/formatters";
 import {
@@ -24,7 +25,6 @@ import {
   normalizePriceInput,
   parseNumericInput,
 } from "@/lib/transaction-utils";
-import { TransactionsTable } from "@/pages/transactions/transactions-table";
 import type { ICustomer } from "@/types/customers";
 import type { ITransaction, ITransactionListItem } from "@/types/transactions";
 
