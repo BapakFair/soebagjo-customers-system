@@ -15,6 +15,7 @@
   "include": [
     "src/lib/formatters.ts",
     "src/lib/transaction-utils.ts",
+    "src/lib/captcha-utils.ts",
     "tests/**/*.ts"
   ]
 }

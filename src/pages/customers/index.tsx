@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { columns } from "@/features/customers/columns";
 import { CustomerMobileList } from "@/features/customers/customer-mobile-list";
+import { SimpleCaptcha, generateCaptchaCode, validateCaptcha } from "@/components/simple-captcha";
 import supabase from "@/lib/db";
 import { formatDateTime } from "@/lib/formatters";
 import type { ICustomer } from "@/types/customers";
@@ -29,6 +30,7 @@ import type { ICustomer } from "@/types/customers";
 type LoginFormState = {
   email: string;
   password: string;
+  captcha: string;
 };
 
 type CustomerFormState = {
@@ -40,6 +42,7 @@ type CustomerFormState = {
 const initialLoginForm: LoginFormState = {
   email: "",
   password: "",
+  captcha: "",
 };
 
 const initialCustomerForm: CustomerFormState = {
@@ -73,6 +76,15 @@ export default function CustomersPage() {
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [dataError, setDataError] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [captchaCode, setCaptchaCode] = React.useState("");
+
+  const refreshCaptcha = React.useCallback(() => {
+    setCaptchaCode(generateCaptchaCode());
+  }, []);
+
+  React.useEffect(() => {
+    refreshCaptcha();
+  }, [refreshCaptcha]);
 
   const isSupabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -159,6 +171,14 @@ export default function CustomersPage() {
     setAuthError(null);
     setSuccessMessage(null);
 
+    if (!validateCaptcha(loginForm.captcha, captchaCode)) {
+      setAuthError("Kode captcha salah. Silakan coba lagi.");
+      refreshCaptcha();
+      setLoginForm((current) => ({ ...current, captcha: "" }));
+      setIsSigningIn(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email: loginForm.email.trim(),
       password: loginForm.password,
@@ -166,6 +186,8 @@ export default function CustomersPage() {
 
     if (error) {
       setAuthError(error.message);
+      refreshCaptcha();
+      setLoginForm((current) => ({ ...current, captcha: "" }));
       setIsSigningIn(false);
       return;
     }
@@ -643,6 +665,19 @@ export default function CustomersPage() {
                         required
                       />
                     </div>
+
+                    <SimpleCaptcha
+                      code={captchaCode}
+                      onRefresh={refreshCaptcha}
+                      value={loginForm.captcha}
+                      onChange={(value) =>
+                        setLoginForm((current) => ({
+                          ...current,
+                          captcha: value,
+                        }))
+                      }
+                      disabled={isSigningIn || !isSupabaseConfigured}
+                    />
 
                     <Button
                       type="submit"
