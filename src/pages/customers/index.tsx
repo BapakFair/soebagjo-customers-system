@@ -77,7 +77,9 @@ export default function CustomersPage() {
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [dataError, setDataError] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
-  const [captchaCode, setCaptchaCode] = React.useState("");
+  const [captchaCode, setCaptchaCode] = React.useState(() => {
+    return generateCaptchaCode(4);
+  });
   const [customerFilter, setCustomerFilter] = React.useState("");
 
   const filteredCustomers = React.useMemo(() => {
@@ -91,12 +93,14 @@ export default function CustomersPage() {
   }, [customers, customerFilter]);
 
   const refreshCaptcha = React.useCallback(() => {
-    setCaptchaCode(generateCaptchaCode());
+    setCaptchaCode(generateCaptchaCode(4));
   }, []);
 
   React.useEffect(() => {
-    refreshCaptcha();
-  }, [refreshCaptcha]);
+    if (!captchaCode) {
+      setCaptchaCode(generateCaptchaCode(4));
+    }
+  }, [captchaCode]);
 
   const isSupabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
