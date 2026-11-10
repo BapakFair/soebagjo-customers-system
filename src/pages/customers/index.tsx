@@ -6,6 +6,8 @@ import {
   AlertCircle,
   ArrowRight,
   Database,
+  Eye,
+  EyeOff,
   LoaderCircle,
   LockKeyhole,
   LogOut,
@@ -80,6 +82,7 @@ export default function CustomersPage() {
   const [captchaCode, setCaptchaCode] = React.useState(() => {
     return generateCaptchaCode(4);
   });
+  const [showPassword, setShowPassword] = React.useState(false);
   const [customerFilter, setCustomerFilter] = React.useState("");
 
   const filteredCustomers = React.useMemo(() => {
@@ -616,22 +619,60 @@ export default function CustomersPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700" htmlFor="password">
-                        Password
-                      </label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Masukkan password akun Supabase"
-                        value={loginForm.password}
-                        onChange={(event) =>
-                          setLoginForm((current) => ({
-                            ...current,
-                            password: event.target.value,
-                          }))
-                        }
-                        required
-                      />
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-slate-700" htmlFor="password">
+                          Password
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <>
+                              <EyeOff className="size-3.5" />
+                              <span>Sembunyikan</span>
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="size-3.5" />
+                              <span>Lihat password</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Masukkan password akun Supabase"
+                          value={loginForm.password}
+                          onChange={(event) =>
+                            setLoginForm((current) => ({
+                              ...current,
+                              password: event.target.value,
+                            }))
+                          }
+                          className="pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 focus:outline-hidden"
+                          title={showPassword ? "Sembunyikan password" : "Lihat password"}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                          <span className="sr-only">
+                            {showPassword ? "Sembunyikan password" : "Lihat password"}
+                          </span>
+                        </button>
+                      </div>
                     </div>
 
                     <SimpleCaptcha

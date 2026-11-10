@@ -33,9 +33,9 @@ export function SimpleCaptcha({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Retina display resolution scaling
+    // Skala resolusi untuk layar Retina/High-DPI
     const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-    const displayWidth = 140;
+    const displayWidth = 144;
     const displayHeight = 42;
 
     canvas.width = Math.round(displayWidth * dpr);
@@ -46,23 +46,23 @@ export function SimpleCaptcha({
     ctx.save();
     ctx.scale(dpr, dpr);
 
-    // Latar belakang bersih dan terang
+    // Latar belakang bersih
     ctx.fillStyle = "#f8fafc"; // slate-50
     ctx.fillRect(0, 0, displayWidth, displayHeight);
 
     // Garis grid halus
     ctx.strokeStyle = "#e2e8f0"; // slate-200
     ctx.lineWidth = 1;
-    for (let x = 20; x < displayWidth; x += 20) {
+    for (let x = 18; x < displayWidth; x += 18) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, displayHeight);
       ctx.stroke();
     }
 
-    // 2 garis gelombang halus (ringan, tidak menutupi huruf)
+    // 2 garis gelombang halus latar belakang
     ctx.strokeStyle = "#cbd5e1"; // slate-300
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.2;
     for (let i = 0; i < 2; i++) {
       ctx.beginPath();
       ctx.moveTo(0, 14 + i * 14);
@@ -78,17 +78,21 @@ export function SimpleCaptcha({
     }
 
     // Karakter tajam, tebal, dan jelas
-    ctx.font = "bold 24px 'Courier New', monospace, sans-serif";
+    ctx.font = "bold 22px 'Courier New', monospace, sans-serif";
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
 
-    const charSpacing = displayWidth / (code.length + 1);
+    // Pastikan 4 karakter memiliki margin aman di kiri dan kanan sehingga tidak terpotong
+    const leftMargin = 22;
+    const rightMargin = 22;
+    const availableWidth = displayWidth - leftMargin - rightMargin;
+    const charSpacing = availableWidth / (Math.max(code.length - 1, 1));
 
     for (let i = 0; i < code.length; i++) {
       ctx.save();
-      const x = (i + 1) * charSpacing;
+      const x = leftMargin + i * charSpacing;
       const y = displayHeight / 2;
-      const angle = Math.sin(i * 1.5) * 6 * (Math.PI / 180); // kemiringan kecil ±6 derajat
+      const angle = Math.sin(i * 1.5) * 5 * (Math.PI / 180); // kemiringan kecil ±5 derajat
 
       ctx.translate(x, y);
       ctx.rotate(angle);
@@ -110,13 +114,18 @@ export function SimpleCaptcha({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* shrink-0 memastikan container canvas tidak terhimpit/terpotong oleh flexbox */}
         <div
-          className="overflow-hidden rounded-md border border-slate-200 bg-slate-50 shadow-xs cursor-pointer"
+          className="shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-50 shadow-xs cursor-pointer"
+          style={{ width: 144, height: 42 }}
           onClick={onRefresh}
           title="Klik gambar untuk mengganti kode captcha"
         >
           <canvas
             ref={canvasRef}
+            width={144}
+            height={42}
+            style={{ width: "144px", height: "42px" }}
             className="block select-none"
             role="img"
             aria-label={`Kode keamanan captcha: ${code}`}
