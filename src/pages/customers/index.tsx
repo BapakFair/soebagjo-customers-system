@@ -10,6 +10,7 @@ import {
   LockKeyhole,
   LogOut,
   RefreshCw,
+  Search,
   ShieldCheck,
   UserRoundPlus,
   Users,
@@ -77,6 +78,17 @@ export default function CustomersPage() {
   const [dataError, setDataError] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
   const [captchaCode, setCaptchaCode] = React.useState("");
+  const [customerFilter, setCustomerFilter] = React.useState("");
+
+  const filteredCustomers = React.useMemo(() => {
+    const query = customerFilter.trim().toLowerCase();
+    if (!query) return customers;
+    return customers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(query) ||
+        c.phone_number.toLowerCase().includes(query)
+    );
+  }, [customers, customerFilter]);
 
   const refreshCaptcha = React.useCallback(() => {
     setCaptchaCode(generateCaptchaCode());
@@ -335,146 +347,76 @@ export default function CustomersPage() {
               </div>
             </div>
           ) : session ? (
-            <section className="mt-10 space-y-8">
-              <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
-                <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                  <CardHeader>
-                    <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
-                      Sesi aktif
-                    </CardDescription>
-                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
-                      Akses customer database SOEBAGJO
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-5">
-                    <div className="rounded-[24px] bg-slate-950 p-5 text-white">
-                      <p className="text-xs tracking-[0.24em] text-teal-200 uppercase">Logged in as</p>
-                      <p className="mt-2 text-lg font-semibold">{session.user.email}</p>
-                      <p className="mt-2 text-sm leading-7 text-white/70">
-                        User ini dapat membaca dan menambah data customer sesuai policy Supabase.
-                      </p>
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">
-                          Total
-                        </p>
-                        <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">
-                          {customers.length}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">customer tersimpan</p>
-                      </div>
-
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">
-                          Terakhir
-                        </p>
-                        <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                          {latestCustomer ? latestCustomer.name : "-"}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">
-                          {latestCustomer ? latestCustomer.phone_number : "Belum ada data"}
-                        </p>
-                      </div>
-
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">
-                          Sync
-                        </p>
-                        <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                          {latestCustomer ? formatDateTime(latestCustomer.created_at) : "-"}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">data terbaru dari Supabase</p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button
-                        type="button"
-                        onClick={() => void loadCustomers()}
-                        variant="outline"
-                        className="w-full rounded-full border-slate-300 bg-white hover:bg-slate-50 sm:w-auto"
-                        disabled={isCustomersLoading}
-                      >
-                        {isCustomersLoading ? (
-                          <LoaderCircle className="size-4 animate-spin" />
-                        ) : (
-                          <RefreshCw className="size-4" />
-                        )}
-                        Refresh Data
-                      </Button>
-
-                      <Button
-                        type="button"
-                        onClick={() => void handleLogout()}
-                        variant="outline"
-                        className="w-full rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100 sm:w-auto"
-                        disabled={isSigningOut}
-                      >
-                        {isSigningOut ? (
-                          <LoaderCircle className="size-4 animate-spin" />
-                        ) : (
-                          <LogOut className="size-4" />
-                        )}
-                        Logout
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                  <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                    <CardHeader>
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-teal-100 text-teal-800">
-                        <Users className="size-5" />
-                      </div>
-                      <CardTitle className="text-2xl tracking-[-0.04em] text-slate-950">
-                        Input customer
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-7 text-slate-600">
-                        Tambah data customer tanpa keluar dari halaman ini.
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                    <CardHeader>
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-                        <Database className="size-5" />
-                      </div>
-                      <CardTitle className="text-2xl tracking-[-0.04em] text-slate-950">
+            <section className="mt-8 space-y-6">
+              {/* Header Ringkas: Sesi Aktif, Supabase RLS, Auth Internal, Counter & Actions */}
+              <div className="flex flex-col gap-4 rounded-[24px] border border-slate-200/80 bg-white/80 p-4 shadow-xs backdrop-blur sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-900 text-white shadow-xs">
+                    <Users className="size-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                        Manajemen Customer
+                      </h2>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-800">
+                        <Database className="size-3.5" />
                         Supabase RLS
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-7 text-slate-600">
-                        Query hanya berhasil untuk user yang punya sesi login valid.
-                      </p>
-                    </CardContent>
-                  </Card>
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                        <LockKeyhole className="size-3.5" />
+                        Auth Internal
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      Sesi aktif: <span className="font-medium text-slate-800">{session.user.email}</span>
+                      {latestCustomer ? ` • Terakhir diupdate ${formatDateTime(latestCustomer.created_at)}` : ""}
+                    </p>
+                  </div>
+                </div>
 
-                  <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                    <CardHeader>
-                      <div className="flex size-12 items-center justify-center rounded-2xl bg-slate-200 text-slate-800">
-                        <LockKeyhole className="size-5" />
-                      </div>
-                      <CardTitle className="text-2xl tracking-[-0.04em] text-slate-950">
-                        Auth internal
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-7 text-slate-600">
-                        Login memakai email dan password dari Supabase Auth.
-                      </p>
-                    </CardContent>
-                  </Card>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-1.5 text-xs text-slate-600">
+                    <span className="mr-1.5 text-sm font-semibold text-slate-950">{customers.length}</span> customer tersimpan
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => void loadCustomers()}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    disabled={isCustomersLoading}
+                    title="Refresh data customer dari Supabase"
+                  >
+                    {isCustomersLoading ? (
+                      <LoaderCircle className="size-3.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="size-3.5" />
+                    )}
+                    Refresh Data
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={() => void handleLogout()}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 rounded-xl border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                    disabled={isSigningOut}
+                  >
+                    {isSigningOut ? (
+                      <LoaderCircle className="size-3.5 animate-spin" />
+                    ) : (
+                      <LogOut className="size-3.5" />
+                    )}
+                    Logout
+                  </Button>
                 </div>
               </div>
 
-              <div className="grid gap-6 xl:grid-cols-[0.72fr_1.28fr]">
+              {/* Area Utama: Form Customer & Customer Table */}
+              <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
                 <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
                   <CardHeader>
                     <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
@@ -557,20 +499,42 @@ export default function CustomersPage() {
                 </Card>
 
                 <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                  <CardHeader>
-                    <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
-                      Customer table
-                    </CardDescription>
-                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
-                      Data customer tersimpan
-                    </CardTitle>
+                  <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
+                        Customer table
+                      </CardDescription>
+                      <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
+                        Data customer tersimpan
+                      </CardTitle>
+                    </div>
+
+                    <div className="relative w-full sm:w-64">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        value={customerFilter}
+                        onChange={(event) => setCustomerFilter(event.target.value)}
+                        placeholder="Cari nama / telepon..."
+                        className="pl-9 bg-white/90"
+                      />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="md:hidden">
-                      <CustomerMobileList customers={customers} />
+                      <CustomerMobileList customers={filteredCustomers} />
                     </div>
                     <div className="hidden md:block">
-                      <DataTable columns={columns} data={customers} />
+                      <DataTable
+                        columns={columns}
+                        data={filteredCustomers}
+                        emptyMessage={
+                          isCustomersLoading
+                            ? "Memuat data customer..."
+                            : customerFilter
+                            ? "Tidak ada customer yang cocok dengan pencarian."
+                            : "Belum ada data customer tersimpan."
+                        }
+                      />
                     </div>
                   </CardContent>
                 </Card>

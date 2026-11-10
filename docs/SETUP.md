@@ -43,8 +43,15 @@ Untuk project existing, baca urutan migration di [`DATABASE.md`](./DATABASE.md).
 1. Buka `Auth > Users` di Supabase.
 2. Tambahkan user internal yang diizinkan login.
 3. Jika aplikasi hanya untuk staf internal, nonaktifkan public sign-up di `Auth > Providers > Email`.
+4. Halaman login di `/customers` dilengkapi dengan keamanan visual CAPTCHA untuk mencegah bot brute-force.
 
-## 5. Jalankan aplikasi
+## 5. Supabase Free Tier Keep-Alive (Cron Job)
+
+Project ini dilengkapi endpoint `/api/keep-alive` dan konfigurasi `vercel.json`:
+- **Vercel Cron:** Berjalan otomatis setiap hari pukul 07:00 WIB (`0 0 * * *`) untuk mengirim ping query ringan ke database Supabase agar status free tier tidak ter-pause.
+- **GitHub Actions (Opsional):** Tersedia workflow backup di `.github/workflows/supabase-keep-alive.yml`.
+
+## 6. Jalankan aplikasi
 
 ```bash
 npm run dev
