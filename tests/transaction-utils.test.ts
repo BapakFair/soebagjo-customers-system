@@ -58,19 +58,31 @@ const sampleTransactions: ITransactionListItem[] = [
 test("normalizePriceInput menyisakan digit saja", () => {
   assert.equal(normalizePriceInput("Rp 1.850.000"), "1850000");
   assert.equal(normalizePriceInput("frame-450k"), "450");
+  assert.equal(normalizePriceInput(""), "");
+  assert.equal(normalizePriceInput(null), "");
+  assert.equal(normalizePriceInput(undefined), "");
 });
 
 test("parseNumericInput mengubah nilai invalid menjadi 0", () => {
   assert.equal(parseNumericInput("12.5"), 12.5);
   assert.equal(parseNumericInput("bukan angka"), 0);
+  assert.equal(parseNumericInput(null), 0);
+  assert.equal(parseNumericInput(undefined), 0);
+  assert.equal(parseNumericInput(15), 15);
 });
 
-test("getTransactionTotal menjumlahkan harga lensa dan frame", () => {
+test("getTransactionTotal menjumlahkan harga lensa dan frame secara aman", () => {
   assert.equal(getTransactionTotal(sampleTransactions[0]), 1850000);
+  assert.equal(getTransactionTotal({ lens_price: 500000, frame_price: 0 }), 500000);
+  // @ts-expect-error test fallback
+  assert.equal(getTransactionTotal({}), 0);
 });
 
-test("toDateFilterValue mengubah timestamp menjadi yyyy-mm-dd", () => {
+test("toDateFilterValue mengubah timestamp menjadi yyyy-mm-dd secara aman", () => {
   assert.equal(toDateFilterValue("2026-03-08T10:15:00+07:00"), "2026-03-08");
+  assert.equal(toDateFilterValue(""), "");
+  assert.equal(toDateFilterValue(null), "");
+  assert.equal(toDateFilterValue("invalid-date"), "");
 });
 
 test("filterTransactions memfilter berdasarkan nama customer", () => {

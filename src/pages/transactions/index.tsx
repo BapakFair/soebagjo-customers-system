@@ -147,6 +147,11 @@ export default function TransactionsPage() {
   React.useEffect(() => {
     let isMounted = true;
 
+    if (!isSupabaseConfigured) {
+      setIsAuthLoading(false);
+      return;
+    }
+
     async function bootstrapSession() {
       const { data, error } = await supabase.auth.getSession();
 
@@ -190,7 +195,7 @@ export default function TransactionsPage() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [loadCustomerOptions, loadTransactions]);
+  }, [isSupabaseConfigured, loadCustomerOptions, loadTransactions]);
 
   React.useEffect(() => {
     if (selectableCustomerOptions.length === 0) {

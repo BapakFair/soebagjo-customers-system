@@ -2,21 +2,38 @@ import type { ITransaction, ITransactionListItem } from "../types/transactions";
 
 export const TRANSACTION_PAGE_SIZE = 25;
 
-export function parseNumericInput(value: string) {
-  const parsed = Number.parseFloat(value);
+export function parseNumericInput(value: string | number | null | undefined) {
+  if (typeof value === "number") {
+    return Number.isNaN(value) ? 0 : value;
+  }
+  if (!value) {
+    return 0;
+  }
+  const parsed = Number.parseFloat(String(value));
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
-export function normalizePriceInput(value: string) {
-  return value.replace(/[^\d]/g, "");
+export function normalizePriceInput(value: string | number | null | undefined) {
+  if (!value) {
+    return "";
+  }
+  return String(value).replace(/[^\d]/g, "");
 }
 
 export function getTransactionTotal(transaction: Pick<ITransaction, "lens_price" | "frame_price">) {
-  return transaction.lens_price + transaction.frame_price;
+  const lens = typeof transaction?.lens_price === "number" && !Number.isNaN(transaction.lens_price) ? transaction.lens_price : 0;
+  const frame = typeof transaction?.frame_price === "number" && !Number.isNaN(transaction.frame_price) ? transaction.frame_price : 0;
+  return lens + frame;
 }
 
-export function toDateFilterValue(timestamp: string) {
+export function toDateFilterValue(timestamp: string | null | undefined) {
+  if (!timestamp) {
+    return "";
+  }
   const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -34,7 +51,7 @@ export function filterTransactions(
   return data.filter((item) => {
     const matchesCustomer =
       normalizedCustomerFilter.length === 0 ||
-      item.customer_name.toLowerCase().includes(normalizedCustomerFilter);
+      (item.customer_name ?? "").toLowerCase().includes(normalizedCustomerFilter);
     const matchesDate =
       transactionDateFilter.length === 0 ||
       toDateFilterValue(item.created_at) === transactionDateFilter;

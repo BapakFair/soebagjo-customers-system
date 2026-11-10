@@ -102,6 +102,11 @@ export default function CustomersPage() {
   React.useEffect(() => {
     let isMounted = true;
 
+    if (!isSupabaseConfigured) {
+      setIsAuthLoading(false);
+      return;
+    }
+
     async function bootstrapSession() {
       const { data, error } = await supabase.auth.getSession();
 
@@ -146,7 +151,7 @@ export default function CustomersPage() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [loadCustomers]);
+  }, [isSupabaseConfigured, loadCustomers]);
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
