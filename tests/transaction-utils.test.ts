@@ -7,6 +7,7 @@ import {
   normalizePriceInput,
   paginateItems,
   parseNumericInput,
+  resolveTransactionTimestamp,
   toDateFilterValue,
   TRANSACTION_PAGE_SIZE,
 } from "../src/lib/transaction-utils";
@@ -115,4 +116,32 @@ test("paginateItems menjaga index halaman tetap aman", () => {
   assert.equal(paginated.totalPages, 1);
   assert.equal(paginated.safePageIndex, 0);
   assert.deepEqual(paginated.pageRows, [1, 2, 3, 4, 5]);
+});
+
+test("resolveTransactionTimestamp mengembalikan undefined saat manual tidak aktif", () => {
+  assert.equal(resolveTransactionTimestamp(false, "2024-05-15", "10:00"), undefined);
+  assert.equal(resolveTransactionTimestamp(true, "", "10:00"), undefined);
+  assert.equal(resolveTransactionTimestamp(true, "invalid-date", "10:00"), undefined);
+  assert.equal(resolveTransactionTimestamp(true, null, null), undefined);
+});
+
+test("resolveTransactionTimestamp menghasilkan ISO string valid saat tanggal manual diisi", () => {
+  const resultWithTime = resolveTransactionTimestamp(true, "2023-08-15", "09:30");
+  assert.ok(resultWithTime);
+  const parsed = new Date(resultWithTime);
+  assert.equal(parsed.getFullYear(), 2023);
+  assert.equal(parsed.getMonth(), 7); // August is index 7
+  assert.equal(parsed.getDate(), 15);
+  assert.equal(parsed.getHours(), 9);
+  assert.equal(parsed.getMinutes(), 30);
+
+  // default to 12:00 if time is omitted
+  const resultWithoutTime = resolveTransactionTimestamp(true, "2023-08-15", "");
+  assert.ok(resultWithoutTime);
+  const parsedNoTime = new Date(resultWithoutTime);
+  assert.equal(parsedNoTime.getFullYear(), 2023);
+  assert.equal(parsedNoTime.getMonth(), 7);
+  assert.equal(parsedNoTime.getDate(), 15);
+  assert.equal(parsedNoTime.getHours(), 12);
+  assert.equal(parsedNoTime.getMinutes(), 0);
 });

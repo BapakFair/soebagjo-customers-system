@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import {
   AlertCircle,
   ArrowRight,
+  Clock,
   Eye,
   FileText,
   LoaderCircle,
@@ -20,11 +21,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { TransactionsTable } from "@/features/transactions/transactions-table";
 import supabase from "@/lib/db";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import {
   getTransactionTotal,
   normalizePriceInput,
   parseNumericInput,
+  resolveTransactionTimestamp,
 } from "@/lib/transaction-utils";
 import type { ICustomer } from "@/types/customers";
 import type { ITransaction, ITransactionListItem } from "@/types/transactions";
@@ -34,6 +36,9 @@ type CustomerOption = Pick<ICustomer, "id" | "name" | "phone_number">;
 type TransactionFormState = {
   customer_id: string;
   phone_number: string;
+  use_manual_date: boolean;
+  manual_date: string;
+  manual_time: string;
   lens_kiri_speris: string;
   lens_kanan_speris: string;
   lens_kiri_addition: string;
@@ -56,6 +61,9 @@ type TransactionJoinRow = ITransaction & {
 const initialTransactionForm: TransactionFormState = {
   customer_id: "",
   phone_number: "",
+  use_manual_date: false,
+  manual_date: "",
+  manual_time: "",
   lens_kiri_speris: "0",
   lens_kanan_speris: "0",
   lens_kiri_addition: "0",
@@ -246,7 +254,29 @@ export default function TransactionsPage() {
     setDataError(null);
     setSuccessMessage(null);
 
-    const payload = {
+    let manualTimestamp: string | undefined;
+
+    if (transactionForm.use_manual_date) {
+      if (!transactionForm.manual_date.trim()) {
+        setDataError("Tanggal transaksi manual wajib diisi jika mode manual aktif.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      manualTimestamp = resolveTransactionTimestamp(
+        true,
+        transactionForm.manual_date,
+        transactionForm.manual_time
+      );
+
+      if (!manualTimestamp) {
+        setDataError("Format tanggal transaksi manual tidak valid. Silakan periksa kembali.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    const payload: Record<string, unknown> = {
       customer_id: Number.parseInt(transactionForm.customer_id, 10),
       phone_number: transactionForm.phone_number,
       lens_kiri_speris: parseNumericInput(transactionForm.lens_kiri_speris),
@@ -262,6 +292,7 @@ export default function TransactionsPage() {
       frame_price: parseNumericInput(normalizePriceInput(transactionForm.frame_price)),
       notes_transaction: transactionForm.notes_transaction.trim(),
       frame: transactionForm.frame.trim(),
+      ...(manualTimestamp ? { created_at: manualTimestamp } : {}),
     };
 
     const { error } = await supabase.from("transactions").insert(payload);
@@ -276,8 +307,17 @@ export default function TransactionsPage() {
       ...initialTransactionForm,
       customer_id: current.customer_id,
       phone_number: current.phone_number,
+      // Pertahankan status opsi manual dan tanggalnya agar staf bisa memasukkan data buku berturut-turut
+      use_manual_date: current.use_manual_date,
+      manual_date: current.manual_date,
+      manual_time: current.manual_time,
     }));
-    setSuccessMessage("Transaksi baru berhasil disimpan.");
+
+    setSuccessMessage(
+      manualTimestamp
+        ? `Transaksi baru berhasil disimpan dengan tanggal manual (${formatDateTime(manualTimestamp)}).`
+        : "Transaksi baru berhasil disimpan dengan waktu realtime saat ini."
+    );
     setIsSubmitting(false);
     void loadTransactions();
   }
@@ -553,6 +593,110 @@ export default function TransactionsPage() {
                           </label>
                           <Input id="transaction_phone_number" value={transactionForm.phone_number} readOnly />
                         </div>
+                      </div>
+
+                      {/* Opsi Tanggal Transaksi: Default Waktu Saat Ini, Opsi Manual untuk Data Mundur dari Buku */}
+                      <div className="rounded-[22px] border border-slate-200/90 bg-slate-50/70 p-4 transition-all">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={transactionForm.use_manual_date}
+                              onChange={(event) =>
+                                setTransactionForm((current) => ({
+                                  ...current,
+                                  use_manual_date: event.target.checked,
+                                  manual_date:
+                                    event.target.checked && !current.manual_date
+                                      ? new Date().toISOString().slice(0, 10)
+                                      : current.manual_date,
+                                }))
+                              }
+                              className="size-4 rounded border-slate-300 text-teal-800 accent-teal-800 focus:ring-teal-700"
+                            />
+                            <span className="text-sm font-semibold text-slate-900">
+                              Input tanggal transaksi manual (data buku fisik / mundur)
+                            </span>
+                          </label>
+
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                            <Clock className="size-3.5 text-slate-400" />
+                            {transactionForm.use_manual_date
+                              ? "Mode tanggal mundur aktif"
+                              : "Default: Waktu otomatis realtime saat ini"}
+                          </span>
+                        </div>
+
+                        {transactionForm.use_manual_date ? (
+                          <div className="mt-4 pt-3.5 border-t border-slate-200/80">
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <div className="space-y-1.5">
+                                <label
+                                  className="text-xs font-semibold tracking-wider text-slate-600 uppercase"
+                                  htmlFor="manual_date_input"
+                                >
+                                  Tanggal Transaksi (Buku) <span className="text-red-500">*</span>
+                                </label>
+                                <Input
+                                  id="manual_date_input"
+                                  type="date"
+                                  value={transactionForm.manual_date}
+                                  onChange={(event) =>
+                                    setTransactionForm((current) => ({
+                                      ...current,
+                                      manual_date: event.target.value,
+                                    }))
+                                  }
+                                  required={transactionForm.use_manual_date}
+                                  className="bg-white"
+                                />
+                                <p className="text-[11px] text-slate-500">
+                                  Pilih tanggal transaksi yang tercatat di buku fisik optik.
+                                </p>
+                              </div>
+
+                              <div className="space-y-1.5">
+                                <label
+                                  className="text-xs font-semibold tracking-wider text-slate-600 uppercase"
+                                  htmlFor="manual_time_input"
+                                >
+                                  Waktu / Jam (Opsional)
+                                </label>
+                                <Input
+                                  id="manual_time_input"
+                                  type="time"
+                                  value={transactionForm.manual_time}
+                                  onChange={(event) =>
+                                    setTransactionForm((current) => ({
+                                      ...current,
+                                      manual_time: event.target.value,
+                                    }))
+                                  }
+                                  placeholder="12:00"
+                                  className="bg-white"
+                                />
+                                <p className="text-[11px] text-slate-500">
+                                  Default pukul 12:00 jika di buku tidak tertera jam.
+                                </p>
+                              </div>
+                            </div>
+
+                            {transactionForm.manual_date ? (
+                              <div className="mt-3 rounded-xl bg-teal-50/80 px-3.5 py-2 text-xs text-teal-900 border border-teal-200/60">
+                                <strong>Preview waktu simpan:</strong> Transaksi ini akan tersimpan bertanggal{" "}
+                                <span className="font-semibold underline">
+                                  {formatDateTime(
+                                    resolveTransactionTimestamp(
+                                      true,
+                                      transactionForm.manual_date,
+                                      transactionForm.manual_time
+                                    )
+                                  )}
+                                </span>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="grid gap-4 xl:grid-cols-2">

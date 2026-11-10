@@ -26,6 +26,45 @@ export function getTransactionTotal(transaction: Pick<ITransaction, "lens_price"
   return lens + frame;
 }
 
+export function resolveTransactionTimestamp(
+  isManual: boolean,
+  manualDate?: string | null,
+  manualTime?: string | null
+): string | undefined {
+  if (!isManual || !manualDate || !manualDate.trim()) {
+    return undefined;
+  }
+
+  const trimmedDate = manualDate.trim();
+  const dateParts = trimmedDate.split("-").map(Number);
+  if (dateParts.length !== 3) {
+    return undefined;
+  }
+
+  const [year, month, day] = dateParts;
+  if (!year || !month || !day || Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+    return undefined;
+  }
+
+  let hours = 12;
+  let minutes = 0;
+
+  if (manualTime && manualTime.trim().includes(":")) {
+    const [h, m] = manualTime.trim().split(":").map(Number);
+    if (!Number.isNaN(h) && !Number.isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+      hours = h;
+      minutes = m;
+    }
+  }
+
+  const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
+  if (Number.isNaN(date.getTime())) {
+    return undefined;
+  }
+
+  return date.toISOString();
+}
+
 export function toDateFilterValue(timestamp: string | null | undefined) {
   if (!timestamp) {
     return "";
