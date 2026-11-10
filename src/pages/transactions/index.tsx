@@ -11,6 +11,7 @@ import {
   LogOut,
   RefreshCw,
   Search,
+  Users,
 } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -312,15 +313,23 @@ export default function TransactionsPage() {
               </h1>
             </div>
             <div className="grid gap-3 sm:flex sm:flex-wrap">
-              <Button asChild variant="outline" className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto">
-                <Link href="/customers">
-                  Halaman Customer
+              <Button
+                asChild
+                variant="outline"
+                className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto"
+              >
+                <Link href="/">
+                  Kembali ke Homepage
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full rounded-full border-slate-300 bg-white/80 text-slate-900 hover:bg-white sm:w-auto">
-                <Link href="/">
-                  Homepage
+
+              <Button
+                asChild
+                className="w-full rounded-full bg-teal-900 text-white hover:bg-teal-800 sm:w-auto"
+              >
+                <Link href="/customers">
+                  Manajemen Customer
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -404,119 +413,73 @@ export default function TransactionsPage() {
               </Card>
             </section>
           ) : (
-            <section className="mt-10 space-y-8">
-              <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
-                <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                  <CardHeader>
-                    <CardDescription className="text-xs font-semibold tracking-[0.24em] text-teal-800 uppercase">
-                      Sesi aktif
-                    </CardDescription>
-                    <CardTitle className="text-2xl tracking-[-0.05em] text-slate-950 sm:text-3xl">
-                      Dashboard transaksi customer
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-5">
-                    <div className="rounded-[24px] bg-slate-950 p-5 text-white">
-                      <p className="text-xs tracking-[0.24em] text-teal-200 uppercase">Logged in as</p>
-                      <p className="mt-2 text-lg font-semibold">{session.user.email}</p>
+            <section className="mt-8 space-y-6">
+              {/* Header Ringkas: Sesi Aktif, Resep Lensa, Opsi Customer, Counter & Actions */}
+              <div className="flex flex-col gap-4 rounded-[24px] border border-slate-200/80 bg-white/80 p-4 shadow-xs backdrop-blur sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal-900 text-white shadow-xs">
+                    <FileText className="size-5" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-lg font-semibold tracking-tight text-slate-950">
+                        Transaksi & Histori Optik
+                      </h2>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-800">
+                        <Eye className="size-3.5" />
+                        Resep Lensa
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                        <Users className="size-3.5" />
+                        {customerOptions.length} Opsi Customer
+                      </span>
                     </div>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      Sesi aktif: <span className="font-medium text-slate-800">{session.user.email}</span>
+                      {latestTransaction
+                        ? ` • Transaksi terakhir ${formatCurrency(getTransactionTotal(latestTransaction))} (${latestTransaction.customer_name})`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">Total</p>
-                        <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">
-                          {transactions.length}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">transaksi tersimpan</p>
-                      </div>
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">Customer</p>
-                        <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950">
-                          {customerOptions.length}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">opsi customer tersedia</p>
-                      </div>
-                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">Terakhir</p>
-                        <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950">
-                          {latestTransaction
-                            ? formatCurrency(getTransactionTotal(latestTransaction))
-                            : "-"}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-600">
-                          {latestTransaction ? latestTransaction.customer_name : "Belum ada transaksi"}
-                        </p>
-                        {latestTransaction ? (
-                          <p className="mt-1 text-xs text-slate-500">
-                            Lensa {formatCurrency(latestTransaction.lens_price)} + Frame{" "}
-                            {formatCurrency(latestTransaction.frame_price)}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-1.5 text-xs text-slate-600">
+                    <span className="mr-1.5 text-sm font-semibold text-slate-950">{transactions.length}</span> transaksi tersimpan
+                  </div>
 
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button
-                        type="button"
-                        onClick={() => void Promise.all([loadCustomerOptions(), loadTransactions()])}
-                        variant="outline"
-                        className="w-full rounded-full border-slate-300 bg-white hover:bg-slate-50 sm:w-auto"
-                        disabled={isLoadingCustomers || isLoadingTransactions}
-                      >
-                        {isLoadingCustomers || isLoadingTransactions ? (
-                          <LoaderCircle className="size-4 animate-spin" />
-                        ) : (
-                          <RefreshCw className="size-4" />
-                        )}
-                        Refresh Data
-                      </Button>
+                  <Button
+                    type="button"
+                    onClick={() => void Promise.all([loadCustomerOptions(), loadTransactions()])}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    disabled={isLoadingCustomers || isLoadingTransactions}
+                    title="Refresh data transaksi dari Supabase"
+                  >
+                    {isLoadingCustomers || isLoadingTransactions ? (
+                      <LoaderCircle className="size-3.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="size-3.5" />
+                    )}
+                    Refresh Data
+                  </Button>
 
-                      <Button
-                        type="button"
-                        onClick={() => void handleLogout()}
-                        variant="outline"
-                        className="w-full rounded-full border-red-200 bg-red-50 text-red-700 hover:bg-red-100 sm:w-auto"
-                        disabled={isSigningOut}
-                      >
-                        {isSigningOut ? (
-                          <LoaderCircle className="size-4 animate-spin" />
-                        ) : (
-                          <LogOut className="size-4" />
-                        )}
-                        Logout
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                    <CardHeader>
-                      <Eye className="size-5 text-amber-700" />
-                      <CardTitle className="text-2xl tracking-[-0.04em] text-slate-950">
-                        Resep lensa
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-7 text-slate-600">
-                        Speris, Addition, cylinder, axis, pupil distance, frame, harga lensa, harga
-                        frame, dan catatan masuk dalam satu form transaksi.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="rounded-[30px] border-slate-200/80 bg-white/80 shadow-[0_18px_60px_rgba(15,23,42,0.06)] backdrop-blur">
-                    <CardHeader>
-                      <FileText className="size-5 text-teal-800" />
-                      <CardTitle className="text-2xl tracking-[-0.04em] text-slate-950">
-                        Histori cepat
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-7 text-slate-600">
-                        Setelah disimpan, transaksi langsung muncul di tabel histori untuk verifikasi.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <Button
+                    type="button"
+                    onClick={() => void handleLogout()}
+                    variant="outline"
+                    size="sm"
+                    className="h-9 rounded-xl border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                    disabled={isSigningOut}
+                  >
+                    {isSigningOut ? (
+                      <LoaderCircle className="size-3.5 animate-spin" />
+                    ) : (
+                      <LogOut className="size-3.5" />
+                    )}
+                    Logout
+                  </Button>
                 </div>
               </div>
 
