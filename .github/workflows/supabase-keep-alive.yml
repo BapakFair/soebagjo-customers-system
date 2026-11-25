@@ -2,25 +2,47 @@ name: Supabase Keep-Alive
 
 on:
   schedule:
-    # Berjalan setiap hari pada pukul 02:00 UTC (09:00 WIB)
-    - cron: '0 2 * * *'
+    # Berjalan 2x sehari (10:15 WIB & 22:15 WIB) di menit ganjil untuk menghindari antrean padat GitHub Actions
+    - cron: '15 3,15 * * *'
   workflow_dispatch: # Memungkinkan trigger manual dari GitHub UI
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API directly
+      - name: Ping Supabase Keep-Alive RPC & Table (Write + Read)
         env:
           SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "Supabase secrets belum di-set di GitHub Secrets. Melewati direct ping."
+            echo "Supabase secrets belum di-set di GitHub Secrets. Melewati backup ping."
             exit 0
           fi
-          echo "Mengirim ping ke Supabase REST API..."
-          curl -s -i \
+
+          echo "1/2 Mengirim WRITE ping ke RPC public.ping_keep_alive()..."
+          RPC_STATUS=$(curl -s -o /tmp/rpc_out.json -w "%{http_code}" \
+            -X POST \
             -H "apikey: $SUPABASE_ANON_KEY" \
             -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
-            "$SUPABASE_URL/rest/v1/customers?select=id&limit=1"
+            -H "Content-Type: application/json" \
+            "$SUPABASE_URL/rest/v1/rpc/ping_keep_alive" \
+            -d '{}')
+          cat /tmp/rpc_out.json
+          echo ""
+          if [ "$RPC_STATUS" -lt 200 ] || [ "$RPC_STATUS" -ge 300 ]; then
+            echo "RPC ping gagal dengan HTTP status $RPC_STATUS"
+            exit 1
+          fi
+
+          echo "2/2 Mengirim READ ping (GET) ke tabel public.keep_alive..."
+          READ_STATUS=$(curl -s -o /tmp/read_out.json -w "%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/keep_alive?select=id,ping_count,last_pinged_at&limit=1")
+          cat /tmp/read_out.json
+          echo ""
+          if [ "$READ_STATUS" -lt 200 ] || [ "$READ_STATUS" -ge 300 ]; then
+            echo "SELECT ping gagal dengan HTTP status $READ_STATUS"
+            exit 1
+          fi
