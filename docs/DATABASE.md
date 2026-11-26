@@ -30,6 +30,16 @@
 - `frame`
 - `notes_transaction`
 
+### `public.keep_alive`
+
+Tabel khusus 1-baris (*singleton row*, `check (id = 1)`) untuk menjaga aktivitas database Supabase Free Tier tanpa membuka RLS tabel bisnis:
+
+- `id` (`smallint`, selalu `1`)
+- `ping_count` (`bigint`, counter total eksekusi ping)
+- `last_pinged_at` (`timestamptz`, waktu ping terakhir dalam UTC)
+
+Dilengkapi fungsi RPC `public.ping_keep_alive()` (`security definer`) yang melakukan `INSERT ... ON CONFLICT DO UPDATE` sehingga tercatat sebagai transaksi baca/tulis nyata oleh PostgreSQL.
+
 ## Project baru
 
 Untuk database baru, cukup jalankan:
@@ -38,11 +48,11 @@ Untuk database baru, cukup jalankan:
 
 Script ini sudah berisi:
 
-- pembuatan tabel `customers`
-- pembuatan tabel `transactions`
+- pembuatan tabel `customers`, `transactions`, dan `keep_alive`
+- fungsi RPC `public.ping_keep_alive()`
 - index dasar
 - RLS
-- policy untuk role `authenticated`
+- policy ketat `authenticated` untuk `customers` & `transactions`, serta akses terbatas khusus heartbeat `keep_alive`
 
 ## Project existing
 
@@ -53,6 +63,7 @@ Urutan aman:
 1. [`../supabase/add-transaction-axis.sql`](../supabase/add-transaction-axis.sql)
 2. [`../supabase/rename-transaction-speris-addition.sql`](../supabase/rename-transaction-speris-addition.sql)
 3. [`../supabase/split-transaction-price.sql`](../supabase/split-transaction-price.sql)
+4. [`../supabase/keep-alive.sql`](../supabase/keep-alive.sql) *(wajib untuk mencegah auto-pause Supabase Free Tier)*
 
 Catatan:
 

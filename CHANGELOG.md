@@ -2,7 +2,30 @@
 
 Semua perubahan penting di project ini dicatat di file ini.
 
-## [Unreleased] - 2026-03-08
+## [Unreleased] - 2026-11-26
+
+### Added
+
+- Sistem **Supabase Free Tier Keep-Alive** berbasis operasi tulis + baca nyata:
+  - Migration [`supabase/keep-alive.sql`](./supabase/keep-alive.sql) (tabel 1-baris `public.keep_alive` + fungsi RPC `public.ping_keep_alive()`).
+  - Endpoint `/api/keep-alive` (`src/pages/api/keep-alive.ts` & `src/lib/keep-alive-utils.ts`) dengan dukungan `CRON_SECRET` opsional dan `Cache-Control: no-store`.
+  - Jadwal Vercel Cron harian (`vercel.json`) dan workflow backup GitHub Actions 2x sehari (`.github/workflows/supabase-keep-alive.yml`).
+- Opsi **input tanggal transaksi manual (mundur)** pada form transaksi di `/transactions` untuk mempermudah digitalisasi catatan buku tulis fisik, dengan fallback otomatis ke waktu realtime saat ini.
+- Proteksi visual **CAPTCHA canvas** (`src/components/simple-captcha.tsx`, `src/lib/captcha-utils.ts`) dan tombol **reveal password** (`Eye`/`EyeOff`) pada form login.
+- Unit test tambahan untuk CAPTCHA, resolusi tanggal transaksi manual, dan utilitas keep-alive (total 18 unit tests).
+
+### Changed
+
+- Penyeragaman desain header ringkas (*compact header*) pada halaman `/customers` dan `/transactions` agar area utama berfokus penuh pada form input dan tabel data.
+- Upgrade Next.js ke `15.5.29` dan migrasi script linting ke ESLint flat config (`eslint .`).
+
+### Fixed
+
+- Perbaikan cron keep-alive yang sebelumnya hanya mengirim request `HEAD` anonim ke tabel ber-RLS (`customers`) sehingga tidak dihitung sebagai *"sufficient database activity"* oleh Supabase.
+- Perbaikan konflik manifest `.next/server/pages/_app/build-manifest.json` pada Pages Router dengan menggunakan `next dev` stabil.
+- Perbaikan *clipping* karakter ke-4 pada canvas CAPTCHA di container flex dan toleransi spasi saat validasi input CAPTCHA.
+
+## [0.1.0] - 2026-03-08
 
 ### Added
 

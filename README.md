@@ -5,17 +5,18 @@ Web app internal untuk toko optik SOEBAGJO. Aplikasi ini dipakai untuk mengganti
 ## Fitur utama
 
 - Homepage modern untuk menjelaskan produk dan struktur data.
-- Halaman `/customers` untuk login internal Supabase dan input data customer.
-- Halaman `/transactions` untuk input resep lensa, harga lensa, harga frame, dan histori transaksi.
+- Halaman `/customers` dengan header ringkas, login internal Supabase berproteksi visual CAPTCHA + toggle lihat password, dan input data customer.
+- Halaman `/transactions` dengan tampilan seragam `/customers` untuk input resep lensa, harga lensa, harga frame, opsi **tanggal transaksi manual** (untuk input data mundur dari buku tulis), dan histori transaksi.
 - Filter histori transaksi berdasarkan nama customer dan tanggal transaksi.
 - Pagination histori transaksi dengan ukuran awal 25 baris.
 - Tampilan mobile-friendly untuk homepage, customer list, dan histori transaksi.
 - Card list khusus mobile untuk customer dan transaksi agar tidak bergantung pada tabel lebar.
+- Sistem **Supabase Free Tier Keep-Alive** (`/api/keep-alive` + Vercel Cron + backup GitHub Actions) dengan operasi tulis (`RPC`) dan baca (`GET`) nyata ke tabel khusus 1-baris `public.keep_alive` tanpa membuka RLS data bisnis.
 - SQL schema dan migration untuk setup baru maupun perubahan schema yang sudah berjalan.
 
 ## Tech stack
 
-- Next.js 15.3.8 (Pages Router)
+- Next.js 15.5.29 (Pages Router)
 - React 19
 - TypeScript
 - Tailwind CSS 4
@@ -27,15 +28,17 @@ Web app internal untuk toko optik SOEBAGJO. Aplikasi ini dipakai untuk mengganti
 - `/`
   Homepage produk dan preview schema.
 - `/customers`
-  Login Supabase, daftar customer, dan form tambah customer.
+  Login Supabase + CAPTCHA, daftar customer, dan form tambah customer.
 - `/transactions`
-  Protected page untuk input transaksi customer dan melihat histori transaksi.
+  Protected page untuk input transaksi customer (realtime maupun tanggal manual mundur) dan melihat histori transaksi.
+- `/api/keep-alive`
+  Endpoint heartbeat harian (Vercel Cron) yang mengeksekusi RPC `ping_keep_alive()` (`UPDATE`) + `SELECT` pada tabel `public.keep_alive`.
 - `src/features`
   Komponen dan helper per fitur yang bukan route Next.js.
 - `src/lib`
-  Utility formatter, helper transaksi, dan konfigurasi Supabase client.
+  Utility formatter, helper transaksi, helper CAPTCHA, helper keep-alive, dan konfigurasi Supabase client.
 - `src/components`
-  UI reusable seperti tabel, button, alert, card, dan input.
+  UI reusable seperti tabel, button, alert, card, input, dan `simple-captcha`.
 
 ## Catatan penting Pages Router
 
@@ -130,7 +133,9 @@ npm.cmd run dev
 ## SQL yang tersedia
 
 - [`supabase/setup.sql`](./supabase/setup.sql)
-  Schema lengkap untuk project baru.
+  Schema lengkap untuk project baru (termasuk tabel `keep_alive` dan RPC `ping_keep_alive`).
+- [`supabase/keep-alive.sql`](./supabase/keep-alive.sql)
+  Migration khusus tabel heartbeat 1-baris `public.keep_alive` + fungsi RPC `public.ping_keep_alive()` untuk project existing agar Supabase Free Tier tidak terkena auto-pause.
 - [`supabase/add-transaction-axis.sql`](./supabase/add-transaction-axis.sql)
   Menambahkan kolom axis ke schema lama.
 - [`supabase/rename-transaction-speris-addition.sql`](./supabase/rename-transaction-speris-addition.sql)

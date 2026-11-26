@@ -7,9 +7,12 @@ Unit test di project ini difokuskan pada logic murni yang paling penting:
 - parsing angka dari input form
 - normalisasi input harga
 - perhitungan total transaksi
+- resolusi timestamp transaksi manual (data mundur buku tulis) maupun default realtime
 - filter histori transaksi
 - pagination histori transaksi
-- formatter dasar untuk tampilan tabel
+- formatter dasar untuk tampilan tabel (aman terhadap `null`/`undefined`)
+- generator dan validator kode CAPTCHA login
+- validasi otorisasi `CRON_SECRET` dan deteksi error schema `keep_alive` pada endpoint cron
 
 ## Cara kerja
 
@@ -41,6 +44,8 @@ Script yang dipakai:
 
 - `tests/transaction-utils.test.ts`
 - `tests/formatters.test.ts`
+- `tests/captcha.test.ts`
+- `tests/keep-alive.test.ts`
 
 ## Area yang belum di-cover
 
